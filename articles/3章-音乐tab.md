@@ -60,7 +60,37 @@ widthFix	缩放模式，宽度不变，高度自动变化，保持原图宽高�
 ### 3-5 详解wx-key
 ### 3-6 详解promise
 ### 3-7 详解async await
+
+小程序中无法直接使用 async awati， 引入插件文件才可以
+
+async 返回值是一个 promise 对象
+
+await,表示，后面是一个异步操作，等待这个异步操作结束后，再执行 await 后面的语句
+
+await 返回结果是一个promise 对象。
+
+把异步函数 变成 同步的。
+
+
+
 ### 3-8 读取歌单数据并插入云数据库
+
+使用npm 安装 request/promise 的包
+
+```javascript
+npm install --save request
+
+npm install --save request-promise
+
+```
+在云函数中写的代码，相当于后端代码，后端代码是不会打印在前端中的	
+所以在云函数中写 console.log 是不会打印在小程序开发工具中的
+
+
+
+
+
+
 ### 3-9 歌单数据去重
 ### 3-10 突破获取数据条数的限制
 ### 3-11 上拉加载与下拉刷新
