@@ -1,3 +1,7 @@
+mock 数据地址：
+
+[xiecheng328/miniprogram](https://github.com/xiecheng328/miniprogram)
+
 ## 3章
 
 ### 3-1 轮播图组件swiper
@@ -6,9 +10,11 @@ block 作用， 和 vue 中 template 差不多
 不会真正渲染到界面上，一般用于 wx:for 中
 
 ```
-
-
-
+<block wx:for="{{swiperImgUrls}}" wx:key="">
+    <swiper-item>
+        <image class="swiper-image" src="{{item.url}}" mode="widthFix" />
+    </swiper-item>
+</block>
 ```
 
 
