@@ -228,11 +228,63 @@ timeout() {
 ### 3-9 歌单数据去重
 
 歌单数据重复，如何去重？  
-如果数据库中已经存在，不导入到数据库  
-歌单id唯一，如何歌单id已经存在，不插入
+如果数据库中已经存在，最近获取歌单，不导入到数据库中
+歌单id唯一，如果歌单id已经存在数据库中，不插入
 
+遍历playlist 数据，在数据库中list中找，如果找到 id 已存在的，不插入，否则插入
 
+getplaylist 2.0 版本：
+	
+```javascript
+// 云函数入口文件
+const cloud = require('wx-server-sdk')
 
+cloud.init()
+
+const rp = require('request-promise')
+const URL = 'http://musicapi.xiecheng.live/personalized'
+const db = cloud.database()//初始化数据库
+const playlistCollection = db.collection('playlist')
+
+// 云函数入口函数
+exports.main = async (event, context) => {
+  //数据库中已有的数据
+  const list = await playlistCollection.get()
+
+  //服务端获取的数据
+  const playlist = await rp(URL).then((res) => {
+    return JSON.parse(res).result
+  })
+  
+  const newData = [];
+  for(let i =0,len1 = playlist.length;i<len1;i++){
+    let flag = true;
+    for(let j = 0,len2 = list.data.length;j<len2;j++){
+      if(playlist[i].id == list.data[j].id){
+        flag =false
+        break
+      }
+    }
+    if(flag){
+      newData.push(playlist[i])
+    }
+  }
+
+  //云数据库只能插入单条数据，只能一条一条插入,所以需要循环
+  for(let i = 0, len = newData.length; i < len; i++) {
+  	await playlistCollection.add({
+  		data: {
+  			 ...playlist[i],
+  			 createTime: db.serverDate(),
+		  }
+  		}).then((res)=> {
+  			console.log('插入成功')
+  		}).catch((err)=> {
+  			console.log('插入失败')
+  		})
+  	}
+ }
+```
 
 
 
