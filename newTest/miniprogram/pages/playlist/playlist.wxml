@@ -2,7 +2,7 @@
 <swiper indicator-dots="{{true}}" autoplay="{{true}}" interval="{{2000}}" duration="{{1000}}">
     <block wx:for="{{swiperImgUrls}}" wx:key="url">
         <swiper-item>
-            <image class="swiper-image" src="{{item.url}}" mode="widthFix" style="width:100%"/>
+            <image class="swiper-image" src="{{item.url}}" mode="aspectFit"/>
         </swiper-item>
     </block>
 </swiper>

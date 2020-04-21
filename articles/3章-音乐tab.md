@@ -32,6 +32,10 @@ block 作用， 和 vue 中 template 差不多
 
 如何用js模拟这几种效果？
 
+小程序默认尺寸：
+	
+	image组件默认宽度300px、高度240px
+	swiper，100%, 高度 150px
 
 ### 3-2 组件化开发
 
@@ -145,21 +149,99 @@ timeout() {
 
 ### 3-8 读取歌单数据并插入云数据库
 
-使用npm 安装 request/promise 的包
+1. 新建云函数的方法：
 
-```javascript
-npm install --save request
+	在 cloudfunctions 点击右键，新建 node.js 云函数
+	如： getPlaylist
 
-npm install --save request-promise
+2. 使用npm 安装 request/promise 的包
 
-```
-在云函数中写的代码，相当于后端代码，后端代码是不会打印在前端中的	
-所以在云函数中写 console.log 是不会打印在小程序开发工具中的
+	安装路径：在getPlaylist 右键，在终端打开
+	
+	在这个<b> 云函数目录文件夹下</b>，执行
+	 
+
+	```javascript
+	sudo npm install --save request
+	
+	sudo npm install --save request-promise
+	
+	```
+	
+3. 云函数
+
+ 	在云函数中写的代码，相当于后端代码，后端代码是不会打印在前端中的  	
+	所以在云函数中写 console.log 是不会打印在小程序开发工具中的
+
+	写完云函数后，需要右键选择，上传并部署
 
 
+4. 获取数据第一步
+	
+	后端返回的是字符串，先转为对象，然后获取 result 属性
+	
+	在 云函数中 console.log 在云函数，调试日志中显示出来
+	
+	在云平台中，点击数据库，插入集合，取名字，playlist
+	
+	云数据库只能插入单条数据，只能一条一条插入,所以需要循环
+	
+	差点以为又不行了！！！吓死，结果是语法错误
+	
+	getplaylist 1.0 版本：
+	
+	```javascript
+	// 云函数入口文件
+	const cloud = require('wx-server-sdk')
+	
+	cloud.init()
+	
+	const rp = require('request-promise')
+	const URL = 'http://musicapi.xiecheng.live/personalized'
+	const db = cloud.database()//初始化数据库
+	
+	
+	// 云函数入口函数
+	exports.main = async (event, context) => {
+	  const playlist = await rp(URL).then((res) => {
+	    return JSON.parse(res).result
+	  })
+	  console.log(playlist);
+	
+	  //云数据库只能插入单条数据，只能一条一条插入,所以需要循环
+	  for(let i = 0, len = playlist.length; i < len; i++) {
+	  	await db.collection('playlist').add({
+	  		data: {
+	  			 ...playlist[i],
+	  			 createTime: db.serverDate(),
+			  }
+	  		}).then((res)=> {
+	  			console.log('插入成功')
+	  		}).catch((err)=> {
+	  			console.log('插入失败')
+	  		})
+	  	}
+	 }
+	```
+	
 
 ### 3-9 歌单数据去重
+
+歌单数据重复，如何去重？  
+如果数据库中已经存在，不导入到数据库  
+歌单id唯一，如何歌单id已经存在，不插入
+
+
+
+
+
+
 ### 3-10 突破获取数据条数的限制
+
+
+
+
+
 ### 3-11 上拉加载与下拉刷新
 ### 3-12 云函数路由优化tcb-router
 ### 3-13 自定义歌曲列表组件musiclist
